@@ -129,8 +129,8 @@ class Alarm_Manager(Thread):
 		pkmn_id = pkmn['pokemon_id']
 		name = get_pkmn_name(pkmn_id)
 		
-		#Check if Pokemon is on the notify list
-		if pkmn_id not in config["NOTIFY_LIST"]:
+		#Check if Pokemon is on the notify list and has a move logged
+		if pkmn_id not in config["NOTIFY_LIST"] and pkmn['move_1']==None:
 			log.info(name + " ignored: notify not enabled.")
 			return
 		
@@ -141,25 +141,35 @@ class Alarm_Manager(Thread):
 			log.debug("Time left must be %f, but was %f." % (config['TIME_LIMIT'], seconds_left))
 			return
 
+		#additional msgs
+		atk = pkmn['individual_attack']
+		dfs = pkmn['individual_defense']
+		sta = pkmn['individual_stamina']
+		mov1id = pkmn['move_1']
+		mov2id = pkmn['move_2']
+		mov1 = get_pkmn_move(mov1id)
+		mov2 = get_pkmn_move(mov2id)
+		iv = ((atk + dfs + sta)*100/45)
+
 		#Check if the Pokemon is outside of notify range
 		lat = pkmn['latitude']
 		lng = pkmn['longitude']
 		dist = get_dist([lat, lng])
-		if dist >= config["NOTIFY_LIST"][pkmn_id]:
-			log.info(name + " ignored: outside range")
-			log.debug("Pokemon must be less than %d, but was %d." % (config["NOTIFY_LIST"][pkmn_id], dist))
+		#Check iv
+		if pkmn_id not in config["NOTIFY_LIST"] and iv < 97:		
+			log.info(name + " ignored:IV too low")
 			return
-        
-		#Check if the Pokemon is in the geofence
-		if 'GEOFENCE' in config:
-			if config['GEOFENCE'].contains(lat,lng) is not True:
-				log.info(name + " ignored: outside geofence")
-				return
 				
 		#Trigger the notifcations
 		log.info(name + " notication was triggered!")
 		timestamps = get_timestamps(dissapear_time)
 		pkmn_info = {
+			'move1': mov1,
+			'move2': mov2,
+			'atk': atk,
+			'dfs': dfs,
+			'sta': sta,
+			'iv': iv,
 			'id': str(pkmn_id),
  			'pkmn': name,
 			'lat' : "{}".format(repr(lat)),

@@ -16,8 +16,8 @@ class Telegram_Alarm(Alarm):
 	_defaults = {
 		'pokemon':{
 			#'chat_id': If no default, required
-			'title': "A wild <pkmn> has appeared!",
-			'body': "Available until <24h_time> (<time_left>)."
+			'title': "<pkmn> gefunden!",
+			'body': "<gmaps> \n Verschwindet um <24h_time> (noch <time_left>)! \n Angriff 1: <move1> \n Angriff 2: <move2> \n Attack: <atk>, Defense: <dfs>, Stamina: <sta> \n IV: <iv>%",
 		},
 		'pokestop':{
 			#'chat_id': If no default, required
